@@ -1,0 +1,2 @@
+se/magnus/microservices/core/recommendation/RecommendationServiceApplication.java
+ se.magnus.microservices.core.recommendation.RecommendationServiceApplication

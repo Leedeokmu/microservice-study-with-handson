@@ -1,0 +1,2 @@
+se/magnus/microservices/composite/product/ProductCompositeServiceApplication.java
+ se.magnus.microservices.composite.product.ProductCompositeServiceApplication
