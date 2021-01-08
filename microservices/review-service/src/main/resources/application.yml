@@ -5,4 +5,7 @@ logging:
     root: INFO
     se.magnus.microservices: DEBUG
 
+---
+spring.profiles: docker
+server.port: 8080
 

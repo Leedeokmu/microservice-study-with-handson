@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 mkdir microservices
 cd microservices
 
