@@ -1,6 +1,7 @@
 package se.magnus.microservices.composite.product.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RestController;
 import se.magnus.api.composite.product.*;
 import se.magnus.api.core.product.Product;

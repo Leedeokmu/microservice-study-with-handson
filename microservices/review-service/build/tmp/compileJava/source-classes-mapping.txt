@@ -1,2 +1,0 @@
-se/magnus/microservices/core/review/ReviewServiceApplication.java
- se.magnus.microservices.core.review.ReviewServiceApplication
