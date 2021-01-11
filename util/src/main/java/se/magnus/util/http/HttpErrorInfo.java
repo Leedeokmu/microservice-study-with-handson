@@ -4,9 +4,6 @@ import org.springframework.http.HttpStatus;
 
 import java.time.ZonedDateTime;
 
-/**
- * Http 에러 구조를 효과적으로 전달하기 위한 클래스
- */
 public class HttpErrorInfo {
     private final ZonedDateTime timestamp;
     private final String path;
