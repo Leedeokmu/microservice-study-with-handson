@@ -1,5 +1,7 @@
 package se.magnus.api.composite.product;
 
+import se.magnus.api.event.Event;
+
 public class RecommendationSummary {
 
     private final int recommendationId;

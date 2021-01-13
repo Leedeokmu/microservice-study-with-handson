@@ -5,14 +5,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import se.magnus.api.core.recommendation.Recommendation;
 import se.magnus.api.core.recommendation.RecommendationService;
 import se.magnus.microservices.core.recommendation.persistence.RecommendationEntity;
 import se.magnus.microservices.core.recommendation.persistence.RecommendationRepository;
 import se.magnus.util.exceptions.InvalidInputException;
 import se.magnus.util.http.ServiceUtil;
-
-import java.util.List;
 
 @RestController
 public class RecommendationServiceImpl implements RecommendationService {
@@ -45,12 +45,7 @@ public class RecommendationServiceImpl implements RecommendationService {
                         ex -> new InvalidInputException("Duplicate key, Product Id: " + body.getProductId() + ", Recommendation Id:" + body.getRecommendationId()))
                 .map(e -> mapper.entityToApi(e));
 
-            LOG.debug("createRecommendation: created a recommendation entity: {}/{}", body.getProductId(), body.getRecommendationId());
-            return mapper.entityToApi(newEntity);
-
-        } catch (DuplicateKeyException dke) {
-            throw new InvalidInputException("Duplicate key, Product Id: " + body.getProductId() + ", Recommendation Id:" + body.getRecommendationId());
-        }
+        return newEntity.block();
     }
 
     @Override
@@ -66,7 +61,10 @@ public class RecommendationServiceImpl implements RecommendationService {
 
     @Override
     public void deleteRecommendations(int productId) {
+
+        if (productId < 1) throw new InvalidInputException("Invalid productId: " + productId);
+
         LOG.debug("deleteRecommendations: tries to delete recommendations for the product with productId: {}", productId);
-        repository.deleteAll(repository.findByProductId(productId));
+        repository.deleteAll(repository.findByProductId(productId)).block();
     }
 }

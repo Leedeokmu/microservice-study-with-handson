@@ -30,7 +30,7 @@ public class PersistenceTests {
         repository.deleteAll().block();
 
         RecommendationEntity entity = new RecommendationEntity(1, 2, "a", 3, "c");
-        savedEntity = repository.save(entity);
+        savedEntity = repository.save(entity).block();
 
         assertEqualsRecommendation(entity, savedEntity);
     }
@@ -42,7 +42,7 @@ public class PersistenceTests {
         RecommendationEntity newEntity = new RecommendationEntity(1, 3, "a", 3, "c");
         repository.save(newEntity).block();
 
-        RecommendationEntity foundEntity = repository.findById(newEntity.getId()).get();
+        RecommendationEntity foundEntity = repository.findById(newEntity.getId()).block();
         assertEqualsRecommendation(newEntity, foundEntity);
 
         assertEquals(2, (long)repository.count().block());
@@ -53,7 +53,7 @@ public class PersistenceTests {
         savedEntity.setAuthor("a2");
         repository.save(savedEntity).block();
 
-        RecommendationEntity foundEntity = repository.findById(savedEntity.getId()).get();
+        RecommendationEntity foundEntity = repository.findById(savedEntity.getId()).block();
         assertEquals(1, (long)foundEntity.getVersion());
         assertEquals("a2", foundEntity.getAuthor());
     }
@@ -66,7 +66,7 @@ public class PersistenceTests {
 
     @Test
     public void getByProductId() {
-        List<RecommendationEntity> entityList = repository.findByProductId(savedEntity.getProductId());
+        List<RecommendationEntity> entityList = repository.findByProductId(savedEntity.getProductId()).collectList().block();
 
         assertThat(entityList, hasSize(1));
         assertEqualsRecommendation(savedEntity, entityList.get(0));
@@ -82,8 +82,8 @@ public class PersistenceTests {
     public void optimisticLockError() {
 
         // Store the saved entity in two separate entity objects
-        RecommendationEntity entity1 = repository.findById(savedEntity.getId()).get();
-        RecommendationEntity entity2 = repository.findById(savedEntity.getId()).get();
+        RecommendationEntity entity1 = repository.findById(savedEntity.getId()).block();
+        RecommendationEntity entity2 = repository.findById(savedEntity.getId()).block();
 
         // Update the entity using the first entity object
         entity1.setAuthor("a1");
@@ -99,7 +99,7 @@ public class PersistenceTests {
         } catch (OptimisticLockingFailureException e) {}
 
         // Get the updated entity from the database and verify its new sate
-        RecommendationEntity updatedEntity = repository.findById(savedEntity.getId()).get();
+        RecommendationEntity updatedEntity = repository.findById(savedEntity.getId()).block();
         assertEquals(1, (int)updatedEntity.getVersion());
         assertEquals("a1", updatedEntity.getAuthor());
     }

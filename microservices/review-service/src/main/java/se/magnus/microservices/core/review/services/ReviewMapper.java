@@ -10,7 +10,6 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface ReviewMapper {
-
     @Mappings({
             @Mapping(target = "serviceAddress", ignore = true)
     })
