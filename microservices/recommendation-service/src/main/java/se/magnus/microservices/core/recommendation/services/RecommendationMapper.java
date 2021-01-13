@@ -12,13 +12,13 @@ import java.util.List;
 public interface RecommendationMapper {
 
     @Mappings({
-            @Mapping(source="entity.rating", target = "rate"),
+            @Mapping(target = "rate", source="entity.rating"),
             @Mapping(target = "serviceAddress", ignore = true)
     })
     Recommendation entityToApi(RecommendationEntity entity);
 
     @Mappings({
-            @Mapping(source="api.rate", target = "rating"),
+            @Mapping(target = "rating", source="api.rate"),
             @Mapping(target = "id", ignore = true),
             @Mapping(target = "version", ignore = true)
     })

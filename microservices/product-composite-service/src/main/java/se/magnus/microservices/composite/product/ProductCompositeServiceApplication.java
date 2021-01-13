@@ -54,6 +54,24 @@ public class ProductCompositeServiceApplication {
 				));
 	}
 
+	@Autowired
+	HealthAggregator healthAggregator;
+
+	@Autowired
+	ProductCompositeIntegration integration;
+
+	@Bean
+	ReactiveHealthIndicator coreServices() {
+
+		ReactiveHealthIndicatorRegistry registry = new DefaultReactiveHealthIndicatorRegistry(new LinkedHashMap<>());
+
+		registry.register("product", () -> integration.getProductHealth());
+		registry.register("recommendation", () -> integration.getRecommendationHealth());
+		registry.register("review", () -> integration.getReviewHealth());
+
+		return new CompositeReactiveHealthIndicator(healthAggregator, registry);
+	}
+
 	public static void main(String[] args) {
 		SpringApplication.run(ProductCompositeServiceApplication.class, args);
 	}

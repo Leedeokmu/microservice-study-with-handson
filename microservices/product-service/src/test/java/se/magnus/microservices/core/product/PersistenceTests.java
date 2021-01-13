@@ -68,11 +68,10 @@ public class PersistenceTests {
     }
 
     @Test
-    void getByProductId() {
-        Optional<ProductEntity> entity = repository.findByProductId(savedEntity.getProductId());
-
-        assertTrue(entity.isPresent());
-        assertEqualsProduct(savedEntity, entity.get());
+    public void getByProductId() {
+        StepVerifier.create(repository.findByProductId(savedEntity.getProductId()))
+                .expectNextMatches(foundEntity -> areProductEqual(savedEntity, foundEntity))
+                .verifyComplete();
     }
 
     @Test
