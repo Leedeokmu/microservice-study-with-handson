@@ -34,3 +34,4 @@ public class IsSameEventTests {
 		assertThat(event1JSon, not(sameEventExceptCreatedAt(event4)));
     }
 }
+

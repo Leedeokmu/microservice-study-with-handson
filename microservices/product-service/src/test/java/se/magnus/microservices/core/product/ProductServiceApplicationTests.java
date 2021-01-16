@@ -25,7 +25,10 @@ import static se.magnus.api.event.Type.CREATE;
 import static se.magnus.api.event.Type.DELETE;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment=RANDOM_PORT, properties = {"spring.data.mongodb.port: 0"})
+@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {
+		"spring.data.mongodb.port: 0",
+		"eureka.client.enabled=false"
+})
 public class ProductServiceApplicationTests {
 
 	@Autowired
@@ -75,12 +78,12 @@ public class ProductServiceApplicationTests {
 		int productId = 1;
 
 		assertNull(repository.findByProductId(productId).block());
-		assertEquals(0, (long)repository.count().block());
+		assertEquals(0, (long) repository.count().block());
 
 		sendCreateProductEvent(productId);
 
 		assertNotNull(repository.findByProductId(productId).block());
-		assertEquals(1, (long)repository.count().block());
+		assertEquals(1, (long) repository.count().block());
 
 		getAndVerifyProduct(productId, OK)
 				.jsonPath("$.productId").isEqualTo(productId);
@@ -101,8 +104,8 @@ public class ProductServiceApplicationTests {
 			sendCreateProductEvent(productId);
 			fail("Expected a MessagingException here!");
 		} catch (MessagingException me) {
-			if (me.getCause() instanceof InvalidInputException)	{
-				InvalidInputException iie = (InvalidInputException)me.getCause();
+			if (me.getCause() instanceof InvalidInputException) {
+				InvalidInputException iie = (InvalidInputException) me.getCause();
 				assertEquals("Duplicate key, Product Id: " + productId, iie.getMessage());
 			} else {
 				fail("Expected a InvalidInputException as the root cause!");

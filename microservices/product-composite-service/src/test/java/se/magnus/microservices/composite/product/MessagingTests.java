@@ -35,15 +35,14 @@ import static se.magnus.api.event.Type.DELETE;
 import static se.magnus.microservices.composite.product.IsSameEvent.sameEventExceptCreatedAt;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment=RANDOM_PORT)
-
+@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {"eureka.client.enabled=false"})
 public class MessagingTests {
 	private static final int PRODUCT_ID_OK = 1;
 	private static final int PRODUCT_ID_NOT_FOUND = 2;
 	private static final int PRODUCT_ID_INVALID = 3;
 
-    @Autowired
-    private WebTestClient client;
+	@Autowired
+	private WebTestClient client;
 
 	@Autowired
 	private MessageSources channels;
@@ -100,8 +99,8 @@ public class MessagingTests {
 	@Test
 	public void createCompositeProduct2() {
 		ProductAggregate composite = new ProductAggregate(1, "name", 1,
-			singletonList(new RecommendationSummary(1, "a", 1, "c")),
-			singletonList(new ReviewSummary(1, "a", "s", "c")), null);
+				singletonList(new RecommendationSummary(1, "a", 1, "c")),
+				singletonList(new ReviewSummary(1, "a", "s", "c")), null);
 		postAndVerifyProduct(composite, OK);
 
 		// Assert one create product event queued up
