@@ -100,7 +100,8 @@ spring.rabbitmq:
   username: guest
   password: guest
 
-spring.security.oauth2.resourceserver.jwt.jwk-set-uri: http://${app.auth-server}:9999/.well-known/jwks.json
+#spring.security.oauth2.resourceserver.jwt.jwk-set-uri: http://${app.auth-server}:9999/.well-known/jwks.json
+spring.security.oauth2.resourceserver.jwt.issuer-uri: https://dev-dm.jp.auth0.com/
 
 logging:
   level:
@@ -110,6 +111,7 @@ logging:
 
 management.endpoint.health.show-details: "ALWAYS"
 management.endpoints.web.exposure.include: "*"
+
 ---
 spring.profiles: docker
 

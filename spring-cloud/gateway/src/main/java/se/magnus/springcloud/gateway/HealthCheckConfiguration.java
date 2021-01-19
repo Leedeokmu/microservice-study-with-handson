@@ -31,7 +31,6 @@ public class HealthCheckConfiguration {
     @Bean
     ReactiveHealthIndicator healthcheckMicroservices() {
         ReactiveHealthIndicatorRegistry registry = new DefaultReactiveHealthIndicatorRegistry(new LinkedHashMap<>());
-        registry.register("auth-server",       () -> getHealth("http://auth-server"));
         registry.register("product",           () -> getHealth("http://product"));
         registry.register("recommendation",    () -> getHealth("http://recommendation"));
         registry.register("review",            () -> getHealth("http://review"));
