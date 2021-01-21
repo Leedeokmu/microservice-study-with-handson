@@ -27,7 +27,9 @@ import static se.magnus.api.event.Type.DELETE;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT, properties = {
 		"spring.data.mongodb.port: 0",
-		"eureka.client.enabled=false"
+		"eureka.client.enabled=false",
+		"spring.cloud.config.enabled=false",
+		"server.error.include-message=always"
 })
 public class ProductServiceApplicationTests {
 
@@ -128,7 +130,6 @@ public class ProductServiceApplicationTests {
 
 	@Test
 	public void getProductInvalidParameterString() {
-
 		getAndVerifyProduct("/no-integer", BAD_REQUEST)
 				.jsonPath("$.path").isEqualTo("/product/no-integer")
 				.jsonPath("$.message").isEqualTo("Type mismatch.");

@@ -27,10 +27,7 @@ import static se.magnus.api.event.Type.CREATE;
 import static se.magnus.api.event.Type.DELETE;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {
-        "spring.data.mongodb.port: 0",
-        "eureka.client.enabled=false"
-})
+@SpringBootTest(webEnvironment=RANDOM_PORT, properties = {"spring.data.mongodb.port: 0", "eureka.client.enabled=false", "spring.cloud.config.enabled=false", "server.error.include-message=always"})
 public class RecommendationServiceApplicationTests {
 
     @Autowired
@@ -59,7 +56,7 @@ public class RecommendationServiceApplicationTests {
         sendCreateRecommendationEvent(productId, 2);
         sendCreateRecommendationEvent(productId, 3);
 
-        assertEquals(3, (long) repository.findByProductId(productId).count().block());
+        assertEquals(3, (long)repository.findByProductId(productId).count().block());
 
         getAndVerifyRecommendationsByProductId(productId, OK)
                 .jsonPath("$.length()").isEqualTo(3)
@@ -69,26 +66,27 @@ public class RecommendationServiceApplicationTests {
 
     @Test
     public void duplicateError() {
+
         int productId = 1;
         int recommendationId = 1;
 
         sendCreateRecommendationEvent(productId, recommendationId);
 
-        assertEquals(1, (long) repository.count().block());
+        assertEquals(1, (long)repository.count().block());
 
         try {
             sendCreateRecommendationEvent(productId, recommendationId);
             fail("Expected a MessagingException here!");
         } catch (MessagingException me) {
-            if (me.getCause() instanceof InvalidInputException) {
-                InvalidInputException iie = (InvalidInputException) me.getCause();
+            if (me.getCause() instanceof InvalidInputException)	{
+                InvalidInputException iie = (InvalidInputException)me.getCause();
                 assertEquals("Duplicate key, Product Id: 1, Recommendation Id:1", iie.getMessage());
             } else {
                 fail("Expected a InvalidInputException as the root cause!");
             }
         }
 
-        assertEquals(1, (long) repository.count().block());
+        assertEquals(1, (long)repository.count().block());
     }
 
     @Test
@@ -98,10 +96,10 @@ public class RecommendationServiceApplicationTests {
         int recommendationId = 1;
 
         sendCreateRecommendationEvent(productId, recommendationId);
-        assertEquals(1, (long) repository.findByProductId(productId).count().block());
+        assertEquals(1, (long)repository.findByProductId(productId).count().block());
 
         sendDeleteRecommendationEvent(productId);
-        assertEquals(0, (long) repository.findByProductId(productId).count().block());
+        assertEquals(0, (long)repository.findByProductId(productId).count().block());
 
         sendDeleteRecommendationEvent(productId);
     }

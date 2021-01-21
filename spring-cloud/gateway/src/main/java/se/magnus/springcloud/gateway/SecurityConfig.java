@@ -17,10 +17,11 @@ public class SecurityConfig {
 		http
 			.csrf().disable()
 			.authorizeExchange()
-				.pathMatchers("/actuator/**").permitAll()
 				.pathMatchers("/headerrouting/**").permitAll()
+				.pathMatchers("/actuator/**").permitAll()
 				.pathMatchers("/eureka/**").permitAll()
 				.pathMatchers("/oauth/**").permitAll()
+				.pathMatchers("/config/**").permitAll()
 				.anyExchange().authenticated()
 				.and()
 			.oauth2ResourceServer()
