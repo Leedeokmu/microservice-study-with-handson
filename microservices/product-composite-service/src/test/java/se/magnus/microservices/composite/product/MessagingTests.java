@@ -40,9 +40,6 @@ import static se.magnus.microservices.composite.product.IsSameEvent.sameEventExc
 		classes = {ProductCompositeServiceApplication.class, TestSecurityConfig.class},
 		properties = {"spring.main.allow-bean-definition-overriding=true", "eureka.client.enabled=false", "spring.cloud.config.enabled=false"})
 public class MessagingTests {
-	private static final int PRODUCT_ID_OK = 1;
-	private static final int PRODUCT_ID_NOT_FOUND = 2;
-	private static final int PRODUCT_ID_INVALID = 3;
 
 	@Autowired
 	private WebTestClient client;
@@ -62,25 +59,6 @@ public class MessagingTests {
 		queueProducts = getQueue(channels.outputProducts());
 		queueRecommendations = getQueue(channels.outputRecommendations());
 		queueReviews = getQueue(channels.outputReviews());
-	}
-
-	private BlockingQueue<Message<?>> getQueue(MessageChannel messageChannel) {
-		return collector.forChannel(messageChannel);
-	}
-
-	private void postAndVerifyProduct(ProductAggregate compositeProduct, HttpStatus expectedStatus) {
-		client.post()
-				.uri("/product-composite")
-				.body(just(compositeProduct), ProductAggregate.class)
-				.exchange()
-				.expectStatus().isEqualTo(expectedStatus);
-	}
-
-	private void deleteAndVerifyProduct(int productId, HttpStatus expectedStatus) {
-		client.delete()
-				.uri("/product-composite/" + productId)
-				.exchange()
-				.expectStatus().isEqualTo(expectedStatus);
 	}
 
 	@Test
@@ -142,5 +120,24 @@ public class MessagingTests {
 		assertEquals(1, queueReviews.size());
 		Event<Integer, Product> expectedReviewEvent = new Event(DELETE, 1, null);
 		assertThat(queueReviews, receivesPayloadThat(sameEventExceptCreatedAt(expectedReviewEvent)));
+	}
+
+	private BlockingQueue<Message<?>> getQueue(MessageChannel messageChannel) {
+		return collector.forChannel(messageChannel);
+	}
+
+	private void postAndVerifyProduct(ProductAggregate compositeProduct, HttpStatus expectedStatus) {
+		client.post()
+				.uri("/product-composite")
+				.body(just(compositeProduct), ProductAggregate.class)
+				.exchange()
+				.expectStatus().isEqualTo(expectedStatus);
+	}
+
+	private void deleteAndVerifyProduct(int productId, HttpStatus expectedStatus) {
+		client.delete()
+				.uri("/product-composite/" + productId)
+				.exchange()
+				.expectStatus().isEqualTo(expectedStatus);
 	}
 }
