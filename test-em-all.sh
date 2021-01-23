@@ -176,7 +176,7 @@ function testCircuitBreaker() {
 
     echo "Start Circuit Breaker tests!"
 
-    EXEC="docker run --rm -it --network=my-network alpine"
+    EXEC="docker run --rm --network=my-network alpine"
 
     # First, use the health - endpoint to verify that the circuit breaker is closed
     assertEqual "CLOSED" "$($EXEC wget product-composite:8080/actuator/health -qO - | jq -r .components.circuitBreakers.details.product.details.state)"
