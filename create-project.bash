@@ -12,7 +12,7 @@ spring init \
 --package-name=se.magnus.microservices.core.product \
 --groupId=se.magnus.microservices.core.product \
 --dependencies=actuator,webflux \
---version=1.0.0-SNAPSHOT \
+--version=0.0.1-SNAPSHOT \
 product-service
 
 spring init \
@@ -24,7 +24,7 @@ spring init \
 --package-name=se.magnus.microservices.core.review \
 --groupId=se.magnus.microservices.core.review \
 --dependencies=actuator,webflux \
---version=1.0.0-SNAPSHOT \
+--version=0.0.1-SNAPSHOT \
 review-service
 
 spring init \
@@ -36,7 +36,7 @@ spring init \
 --package-name=se.magnus.microservices.core.recommendation \
 --groupId=se.magnus.microservices.core.recommendation \
 --dependencies=actuator,webflux \
---version=1.0.0-SNAPSHOT \
+--version=0.0.1-SNAPSHOT \
 recommendation-service
 
 spring init \
@@ -48,7 +48,7 @@ spring init \
 --package-name=se.magnus.microservices.composite.product \
 --groupId=se.magnus.microservices.composite.product \
 --dependencies=actuator,webflux \
---version=1.0.0-SNAPSHOT \
+--version=0.0.1-SNAPSHOT \
 product-composite-service
 
 cd ..
