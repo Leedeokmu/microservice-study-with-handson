@@ -2,7 +2,6 @@ app.config-server: localhost
 
 spring:
   application.name: gateway
-
   cloud.config:
     failFast: true
     retry:
