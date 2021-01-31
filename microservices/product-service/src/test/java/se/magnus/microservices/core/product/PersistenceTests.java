@@ -13,7 +13,7 @@ import se.magnus.microservices.core.product.persistence.ProductEntity;
 import se.magnus.microservices.core.product.persistence.ProductRepository;
 
 @RunWith(SpringRunner.class)
-@DataMongoTest(properties = {"spring.cloud.config.enabled=false"})
+@DataMongoTest(properties = {})
 public class PersistenceTests {
 
     @Autowired

@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 import static org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED;
 
 @RunWith(SpringRunner.class)
-@DataJpaTest(properties = {"spring.cloud.config.enabled=false"})
+@DataJpaTest(properties = {})
 @Transactional(propagation = NOT_SUPPORTED)
 public class PersistenceTests {
 

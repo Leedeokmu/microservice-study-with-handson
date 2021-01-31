@@ -1,3 +1,7 @@
+## 사전작업
+# http 터널링 필요
+# kustomization.yml 파일 수정 필요
+# ingress 구성 파일 수정 필요
 minikube docker-env --shell=powershell | iex
 ./gradlew build -x test
 docker-compose build
@@ -21,6 +25,12 @@ kubectl create secret generic mysql-server-credentials --from-literal=MYSQL_ROOT
 kubectl create secret generic mysql-credentials --from-literal=SPRING_DATASOURCE_USERNAME=mysql-user-dev --from-literal=SPRING_DATASOURCE_PASSWORD=mysql-pwd-dev --save-config
 
 kubectl create secret tls tls-certificate --key kubernetes/cert/tls.key --cert kubernetes/cert/tls.crt
+
+kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.1.0/cert-manager.yaml
+kubectl wait --timeout=600s --for=condition=ready pod --all -n cert-manager
+
+kubectl apply -f kubernetes/services/base/letsencrypt-issuer-staging.yaml
+kubectl apply -f kubernetes/services/base/letsencrypt-issuer-prod.yaml
 
 # First deploy the resource managers and wait for their pods to become ready
 kubectl apply -f kubernetes/services/overlays/dev/rabbitmq-dev.yml

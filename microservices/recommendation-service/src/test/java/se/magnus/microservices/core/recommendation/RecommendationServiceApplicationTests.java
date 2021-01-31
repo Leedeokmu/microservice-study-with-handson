@@ -27,7 +27,7 @@ import static se.magnus.api.event.Type.CREATE;
 import static se.magnus.api.event.Type.DELETE;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment=RANDOM_PORT, properties = {"spring.data.mongodb.port: 0", "spring.cloud.config.enabled=false", "server.error.include-message=always"})
+@SpringBootTest(webEnvironment=RANDOM_PORT, properties = {"spring.data.mongodb.port: 0", "server.error.include-message=always"})
 public class RecommendationServiceApplicationTests {
 
     @Autowired
