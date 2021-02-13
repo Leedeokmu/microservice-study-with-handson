@@ -9,8 +9,8 @@ import se.magnus.api.event.Event;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static se.magnus.api.event.Type.CREATE;
-import static se.magnus.api.event.Type.DELETE;
+import static se.magnus.api.event.Event.Type.CREATE;
+import static se.magnus.api.event.Event.Type.DELETE;
 import static se.magnus.microservices.composite.product.IsSameEvent.sameEventExceptCreatedAt;
 
 public class IsSameEventTests {
@@ -34,4 +34,3 @@ public class IsSameEventTests {
 		assertThat(event1JSon, not(sameEventExceptCreatedAt(event4)));
     }
 }
-

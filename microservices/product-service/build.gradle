@@ -11,12 +11,12 @@ buildscript {
 }
 
 apply plugin: 'java'
-
+apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
 group = 'se.magnus.microservices.core.product'
-version = '0.0.1-SNAPSHOT'
+version = '1.0.0-SNAPSHOT'
 sourceCompatibility = 1.8
 
 ext {
@@ -37,8 +37,6 @@ dependencies {
 	implementation('org.springframework.cloud:spring-cloud-starter-stream-rabbit')
 	implementation('org.springframework.cloud:spring-cloud-starter-stream-kafka')
 	implementation('org.springframework.cloud:spring-cloud-starter-sleuth')
-
-
 	implementation('org.springframework.retry:spring-retry')
 	implementation("org.mapstruct:mapstruct:${mapstructVersion}")
 

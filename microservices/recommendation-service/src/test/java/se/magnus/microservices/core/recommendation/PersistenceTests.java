@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
-@DataMongoTest(properties = {})
+@DataMongoTest
 public class PersistenceTests {
 
     @Autowired
@@ -26,8 +26,8 @@ public class PersistenceTests {
     private RecommendationEntity savedEntity;
 
     @Before
-    public void setupDb() {
-        repository.deleteAll().block();
+   	public void setupDb() {
+   		repository.deleteAll().block();
 
         RecommendationEntity entity = new RecommendationEntity(1, 2, "a", 3, "c");
         savedEntity = repository.save(entity).block();
@@ -37,7 +37,7 @@ public class PersistenceTests {
 
 
     @Test
-    public void create() {
+   	public void create() {
 
         RecommendationEntity newEntity = new RecommendationEntity(1, 3, "a", 3, "c");
         repository.save(newEntity).block();
@@ -49,7 +49,7 @@ public class PersistenceTests {
     }
 
     @Test
-    public void update() {
+   	public void update() {
         savedEntity.setAuthor("a2");
         repository.save(savedEntity).block();
 
@@ -59,13 +59,13 @@ public class PersistenceTests {
     }
 
     @Test
-    public void delete() {
+   	public void delete() {
         repository.delete(savedEntity).block();
         assertFalse(repository.existsById(savedEntity.getId()).block());
     }
 
     @Test
-    public void getByProductId() {
+   	public void getByProductId() {
         List<RecommendationEntity> entityList = repository.findByProductId(savedEntity.getProductId()).collectList().block();
 
         assertThat(entityList, hasSize(1));
@@ -73,13 +73,13 @@ public class PersistenceTests {
     }
 
     @Test(expected = DuplicateKeyException.class)
-    public void duplicateError() {
+   	public void duplicateError() {
         RecommendationEntity entity = new RecommendationEntity(1, 2, "a", 3, "c");
         repository.save(entity).block();
     }
 
     @Test
-    public void optimisticLockError() {
+   	public void optimisticLockError() {
 
         // Store the saved entity in two separate entity objects
         RecommendationEntity entity1 = repository.findById(savedEntity.getId()).block();

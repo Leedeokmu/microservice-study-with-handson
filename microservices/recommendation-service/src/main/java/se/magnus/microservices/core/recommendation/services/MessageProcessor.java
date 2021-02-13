@@ -25,25 +25,29 @@ public class MessageProcessor {
 
     @StreamListener(target = Sink.INPUT)
     public void process(Event<Integer, Recommendation> event) {
+
         LOG.info("Process message created at {}...", event.getEventCreatedAt());
+
         switch (event.getEventType()) {
-            case CREATE:
-                Recommendation recommendation = event.getData();
-                LOG.info("Create recommendation with ID: {}/{}", recommendation.getProductId(), recommendation.getRecommendationId());
-                recommendationService.createRecommendation(recommendation);
-                break;
 
-            case DELETE:
-                int productId = event.getKey();
-                LOG.info("Delete recommendations with ProductID: {}", productId);
-                recommendationService.deleteRecommendations(productId);
-                break;
+        case CREATE:
+            Recommendation recommendation = event.getData();
+            LOG.info("Create recommendation with ID: {}/{}", recommendation.getProductId(), recommendation.getRecommendationId());
+            recommendationService.createRecommendation(recommendation);
+            break;
 
-            default:
-                String errorMessage = "Incorrect event type: " + event.getEventType() + ", expected a CREATE or DELETE event";
-                LOG.warn(errorMessage);
-                throw new EventProcessingException(errorMessage);
+        case DELETE:
+            int productId = event.getKey();
+            LOG.info("Delete recommendations with ProductID: {}", productId);
+            recommendationService.deleteRecommendations(productId);
+            break;
+
+        default:
+            String errorMessage = "Incorrect event type: " + event.getEventType() + ", expected a CREATE or DELETE event";
+            LOG.warn(errorMessage);
+            throw new EventProcessingException(errorMessage);
         }
+
         LOG.info("Message processing done!");
     }
 }

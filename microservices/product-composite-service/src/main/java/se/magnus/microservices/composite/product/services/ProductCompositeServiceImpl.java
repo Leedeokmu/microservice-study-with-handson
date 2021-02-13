@@ -16,12 +16,15 @@ import se.magnus.api.composite.product.*;
 import se.magnus.api.core.product.Product;
 import se.magnus.api.core.recommendation.Recommendation;
 import se.magnus.api.core.review.Review;
+import se.magnus.util.exceptions.InvalidInputException;
 import se.magnus.util.exceptions.NotFoundException;
 import se.magnus.util.http.ServiceUtil;
 
 import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static java.util.logging.Level.FINE;
 
 @RestController
 public class ProductCompositeServiceImpl implements ProductCompositeService {
@@ -76,8 +79,11 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
             throw re;
         }
     }
+
     @Override
     public Mono<ProductAggregate> getCompositeProduct(HttpHeaders requestHeaders, int productId, int delay, int faultPercent) {
+
+        LOG.info("Will get composite product info for product.id={}", productId);
 
         HttpHeaders headers = getHeaders(requestHeaders, "X-group");
 
@@ -85,31 +91,17 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
                 values -> createProductAggregate((SecurityContext) values[0], (Product) values[1], (List<Recommendation>) values[2], (List<Review>) values[3], serviceUtil.getServiceAddress()),
                 ReactiveSecurityContextHolder.getContext().defaultIfEmpty(nullSC),
                 integration.getProduct(headers, productId, delay, faultPercent)
-                        .onErrorReturn(CallNotPermittedException.class, getProductFallbackValue(productId)),
+                    .onErrorReturn(CallNotPermittedException.class, getProductFallbackValue(productId)),
                 integration.getRecommendations(headers, productId).collectList(),
                 integration.getReviews(headers, productId).collectList())
-                .doOnError(ex -> LOG.warn("getCompositeProduct failed: {}", ex.toString()))
-                .log();
+            .doOnError(ex -> LOG.warn("getCompositeProduct failed: {}", ex.toString()))
+            .log(null, FINE);
     }
 
     @Override
     public Mono<Void> deleteCompositeProduct(int productId) {
         return ReactiveSecurityContextHolder.getContext().doOnSuccess(sc -> internalDeleteCompositeProduct(sc, productId)).then();
     }
-
-    private HttpHeaders getHeaders(HttpHeaders requestHeaders, String... headers) {
-        LOG.trace("Will look for {} headers: {}", headers.length, headers);
-        HttpHeaders h = new HttpHeaders();
-        for (String header : headers) {
-            List<String> value = requestHeaders.get(header);
-            if (value != null) {
-                h.addAll(header, value);
-            }
-        }
-        LOG.trace("Will transfer {}, headers: {}", h.size(), h);
-        return h;
-    }
-
 
     private void internalDeleteCompositeProduct(SecurityContext sc, int productId) {
         try {
@@ -129,8 +121,31 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
         }
     }
 
+    private HttpHeaders getHeaders(HttpHeaders requesthHeaders, String... headers) {
+        LOG.trace("Will look for {} headers: {}", headers.length, headers);
+        HttpHeaders h = new HttpHeaders();
+        for (String header : headers) {
+            List<String> value = requesthHeaders.get(header);
+            if (value != null) {
+                h.addAll(header, value);
+            }
+        }
+        LOG.trace("Will transfer {}, headers: {}", h.size(), h);
+        return h;
+    }
+
+    /**
+     * Note that this method is called by Mono.onErrorReturn() in getCompositeProduct().
+     * Mono.onErrorReturn() will call this method once per execution to prepare a static response if the execution fails.
+     * Do not execute any lengthy or CPU intensive operation in this method.
+     *
+     * @param productId
+     * @return
+     */
     private Product getProductFallbackValue(int productId) {
-        LOG.warn("Creating a fallback product for productId = {}", productId);
+
+        if (productId < 1) throw new InvalidInputException("Invalid productId: " + productId);
+
         if (productId == 13) {
             String errMsg = "Product Id: " + productId + " not found in fallback cache!";
             LOG.warn(errMsg);
@@ -151,15 +166,15 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
 
         // 2. Copy summary recommendation info, if available
         List<RecommendationSummary> recommendationSummaries = (recommendations == null) ? null :
-                recommendations.stream()
-                        .map(r -> new RecommendationSummary(r.getRecommendationId(), r.getAuthor(), r.getRate(), r.getContent()))
-                        .collect(Collectors.toList());
+             recommendations.stream()
+                .map(r -> new RecommendationSummary(r.getRecommendationId(), r.getAuthor(), r.getRate(), r.getContent()))
+                .collect(Collectors.toList());
 
         // 3. Copy summary review info, if available
         List<ReviewSummary> reviewSummaries = (reviews == null)  ? null :
-                reviews.stream()
-                        .map(r -> new ReviewSummary(r.getReviewId(), r.getAuthor(), r.getSubject(), r.getContent()))
-                        .collect(Collectors.toList());
+            reviews.stream()
+                .map(r -> new ReviewSummary(r.getReviewId(), r.getAuthor(), r.getSubject(), r.getContent()))
+                .collect(Collectors.toList());
 
         // 4. Create info regarding the involved microservices addresses
         String productAddress = product.getServiceAddress();

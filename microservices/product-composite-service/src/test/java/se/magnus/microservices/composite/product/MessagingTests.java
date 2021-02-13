@@ -18,34 +18,34 @@ import se.magnus.api.core.product.Product;
 import se.magnus.api.core.recommendation.Recommendation;
 import se.magnus.api.core.review.Review;
 import se.magnus.api.event.Event;
-import se.magnus.microservices.composite.product.services.MessageSources;
+import se.magnus.microservices.composite.product.services.ProductCompositeIntegration;
 
 import java.util.concurrent.BlockingQueue;
 
 import static java.util.Collections.singletonList;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.cloud.stream.test.matcher.MessageQueueMatcher.receivesPayloadThat;
 import static org.springframework.http.HttpStatus.OK;
 import static reactor.core.publisher.Mono.just;
-import static se.magnus.api.event.Type.CREATE;
-import static se.magnus.api.event.Type.DELETE;
+import static se.magnus.api.event.Event.Type.CREATE;
+import static se.magnus.api.event.Event.Type.DELETE;
 import static se.magnus.microservices.composite.product.IsSameEvent.sameEventExceptCreatedAt;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
-		webEnvironment = RANDOM_PORT,
-		classes = {ProductCompositeServiceApplication.class, TestSecurityConfig.class},
-		properties = {"spring.main.allow-bean-definition-overriding=true"})
+	webEnvironment=RANDOM_PORT,
+	classes = {ProductCompositeServiceApplication.class, TestSecurityConfig.class },
+	properties = {"spring.main.allow-bean-definition-overriding=true"})
 public class MessagingTests {
 
-	@Autowired
-	private WebTestClient client;
+    @Autowired
+    private WebTestClient client;
 
 	@Autowired
-	private MessageSources channels;
+	private ProductCompositeIntegration.MessageSources channels;
 
 	@Autowired
 	private MessageCollector collector;
@@ -63,6 +63,7 @@ public class MessagingTests {
 
 	@Test
 	public void createCompositeProduct1() {
+
 		ProductAggregate composite = new ProductAggregate(1, "name", 1, null, null, null);
 		postAndVerifyProduct(composite, OK);
 
@@ -79,24 +80,29 @@ public class MessagingTests {
 
 	@Test
 	public void createCompositeProduct2() {
+
 		ProductAggregate composite = new ProductAggregate(1, "name", 1,
-				singletonList(new RecommendationSummary(1, "a", 1, "c")),
-				singletonList(new ReviewSummary(1, "a", "s", "c")), null);
+			singletonList(new RecommendationSummary(1, "a", 1, "c")),
+			singletonList(new ReviewSummary(1, "a", "s", "c")), null);
+
 		postAndVerifyProduct(composite, OK);
 
 		// Assert one create product event queued up
 		assertEquals(1, queueProducts.size());
+
 		Event<Integer, Product> expectedProductEvent = new Event(CREATE, composite.getProductId(), new Product(composite.getProductId(), composite.getName(), composite.getWeight(), null));
 		assertThat(queueProducts, receivesPayloadThat(sameEventExceptCreatedAt(expectedProductEvent)));
 
 		// Assert one create recommendation event queued up
 		assertEquals(1, queueRecommendations.size());
+
 		RecommendationSummary rec = composite.getRecommendations().get(0);
 		Event<Integer, Product> expectedRecommendationEvent = new Event(CREATE, composite.getProductId(), new Recommendation(composite.getProductId(), rec.getRecommendationId(), rec.getAuthor(), rec.getRate(), rec.getContent(), null));
 		assertThat(queueRecommendations, receivesPayloadThat(sameEventExceptCreatedAt(expectedRecommendationEvent)));
 
 		// Assert one create review event queued up
 		assertEquals(1, queueReviews.size());
+
 		ReviewSummary rev = composite.getReviews().get(0);
 		Event<Integer, Product> expectedReviewEvent = new Event(CREATE, composite.getProductId(), new Review(composite.getProductId(), rev.getReviewId(), rev.getAuthor(), rev.getSubject(), rev.getContent(), null));
 		assertThat(queueReviews, receivesPayloadThat(sameEventExceptCreatedAt(expectedReviewEvent)));
@@ -108,16 +114,19 @@ public class MessagingTests {
 
 		// Assert one delete product event queued up
 		assertEquals(1, queueProducts.size());
+
 		Event<Integer, Product> expectedEvent = new Event(DELETE, 1, null);
 		assertThat(queueProducts, is(receivesPayloadThat(sameEventExceptCreatedAt(expectedEvent))));
 
 		// Assert one delete recommendation event queued up
 		assertEquals(1, queueRecommendations.size());
+
 		Event<Integer, Product> expectedRecommendationEvent = new Event(DELETE, 1, null);
 		assertThat(queueRecommendations, receivesPayloadThat(sameEventExceptCreatedAt(expectedRecommendationEvent)));
 
 		// Assert one delete review event queued up
 		assertEquals(1, queueReviews.size());
+
 		Event<Integer, Product> expectedReviewEvent = new Event(DELETE, 1, null);
 		assertThat(queueReviews, receivesPayloadThat(sameEventExceptCreatedAt(expectedReviewEvent)));
 	}
@@ -128,16 +137,16 @@ public class MessagingTests {
 
 	private void postAndVerifyProduct(ProductAggregate compositeProduct, HttpStatus expectedStatus) {
 		client.post()
-				.uri("/product-composite")
-				.body(just(compositeProduct), ProductAggregate.class)
-				.exchange()
-				.expectStatus().isEqualTo(expectedStatus);
+			.uri("/product-composite")
+			.body(just(compositeProduct), ProductAggregate.class)
+			.exchange()
+			.expectStatus().isEqualTo(expectedStatus);
 	}
 
 	private void deleteAndVerifyProduct(int productId, HttpStatus expectedStatus) {
 		client.delete()
-				.uri("/product-composite/" + productId)
-				.exchange()
-				.expectStatus().isEqualTo(expectedStatus);
+			.uri("/product-composite/" + productId)
+			.exchange()
+			.expectStatus().isEqualTo(expectedStatus);
 	}
 }

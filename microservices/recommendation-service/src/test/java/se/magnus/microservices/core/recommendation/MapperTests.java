@@ -1,4 +1,5 @@
 package se.magnus.microservices.core.recommendation;
+
 import org.junit.Test;
 import org.mapstruct.factory.Mappers;
 import se.magnus.api.core.recommendation.Recommendation;

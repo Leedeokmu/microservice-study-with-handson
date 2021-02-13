@@ -13,7 +13,9 @@ import se.magnus.util.exceptions.EventProcessingException;
 
 @EnableBinding(Sink.class)
 public class MessageProcessor {
+
     private static final Logger LOG = LoggerFactory.getLogger(MessageProcessor.class);
+
     private final ReviewService reviewService;
 
     @Autowired
@@ -23,7 +25,9 @@ public class MessageProcessor {
 
     @StreamListener(target = Sink.INPUT)
     public void process(Event<Integer, Review> event) {
+
         LOG.info("Process message created at {}...", event.getEventCreatedAt());
+
         switch (event.getEventType()) {
 
         case CREATE:

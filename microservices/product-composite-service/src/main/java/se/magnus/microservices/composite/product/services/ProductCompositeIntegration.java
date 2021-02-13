@@ -33,11 +33,12 @@ import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
 
+import static java.util.logging.Level.FINE;
 import static reactor.core.publisher.Flux.empty;
 import static se.magnus.api.event.Type.CREATE;
 import static se.magnus.api.event.Type.DELETE;
 
-@EnableBinding(MessageSources.class)
+@EnableBinding(ProductCompositeIntegration.MessageSources.class)
 @Component
 public class ProductCompositeIntegration implements ProductService, RecommendationService, ReviewService {
 
@@ -56,12 +57,28 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
 
     private final int productServiceTimeoutSec;
 
+    public interface MessageSources {
+
+        String OUTPUT_PRODUCTS = "output-products";
+        String OUTPUT_RECOMMENDATIONS = "output-recommendations";
+        String OUTPUT_REVIEWS = "output-reviews";
+
+        @Output(OUTPUT_PRODUCTS)
+        MessageChannel outputProducts();
+
+        @Output(OUTPUT_RECOMMENDATIONS)
+        MessageChannel outputRecommendations();
+
+        @Output(OUTPUT_REVIEWS)
+        MessageChannel outputReviews();
+    }
+
     @Autowired
     public ProductCompositeIntegration(
-            WebClient.Builder webClientBuilder,
-            ObjectMapper mapper,
-            MessageSources messageSources,
-            @Value("${app.product-service.timeoutSec}") int productServiceTimeoutSec
+        WebClient.Builder webClientBuilder,
+        ObjectMapper mapper,
+        MessageSources messageSources,
+        @Value("${app.product-service.timeoutSec}") int productServiceTimeoutSec
 
     ) {
         this.webClientBuilder = webClientBuilder;
@@ -85,10 +102,10 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
         LOG.debug("Will call the getProduct API on URL: {}", url);
 
         return getWebClient().get().uri(url)
-                .headers(h -> h.addAll(headers))
-                .retrieve().bodyToMono(Product.class).log()
-                .onErrorMap(WebClientResponseException.class, ex -> handleException(ex))
-                .timeout(Duration.ofSeconds(productServiceTimeoutSec));
+            .headers(h -> h.addAll(headers))
+            .retrieve().bodyToMono(Product.class).log(null, FINE)
+            .onErrorMap(WebClientResponseException.class, ex -> handleException(ex))
+            .timeout(Duration.ofSeconds(productServiceTimeoutSec));
     }
 
     @Override
@@ -110,7 +127,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
         LOG.debug("Will call the getRecommendations API on URL: {}", url);
 
         // Return an empty result if something goes wrong to make it possible for the composite service to return partial responses
-        return getWebClient().get().uri(url).headers(h -> h.addAll(headers)).retrieve().bodyToFlux(Recommendation.class).log().onErrorResume(error -> empty());
+        return getWebClient().get().uri(url).headers(h -> h.addAll(headers)).retrieve().bodyToFlux(Recommendation.class).log(null, FINE).onErrorResume(error -> empty());
     }
 
     @Override
@@ -132,7 +149,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
         LOG.debug("Will call the getReviews API on URL: {}", url);
 
         // Return an empty result if something goes wrong to make it possible for the composite service to return partial responses
-        return getWebClient().get().uri(url).headers(h -> h.addAll(headers)).retrieve().bodyToFlux(Review.class).log().onErrorResume(error -> empty());
+        return getWebClient().get().uri(url).headers(h -> h.addAll(headers)).retrieve().bodyToFlux(Review.class).log(null, FINE).onErrorResume(error -> empty());
 
     }
 
@@ -159,16 +176,16 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
 
         switch (wcre.getStatusCode()) {
 
-            case NOT_FOUND:
-                return new NotFoundException(getErrorMessage(wcre));
+        case NOT_FOUND:
+            return new NotFoundException(getErrorMessage(wcre));
 
-            case UNPROCESSABLE_ENTITY :
-                return new InvalidInputException(getErrorMessage(wcre));
+        case UNPROCESSABLE_ENTITY :
+            return new InvalidInputException(getErrorMessage(wcre));
 
-            default:
-                LOG.warn("Got a unexpected HTTP error: {}, will rethrow it", wcre.getStatusCode());
-                LOG.warn("Error body: {}", wcre.getResponseBodyAsString());
-                return ex;
+        default:
+            LOG.warn("Got a unexpected HTTP error: {}, will rethrow it", wcre.getStatusCode());
+            LOG.warn("Error body: {}", wcre.getResponseBodyAsString());
+            return ex;
         }
     }
 

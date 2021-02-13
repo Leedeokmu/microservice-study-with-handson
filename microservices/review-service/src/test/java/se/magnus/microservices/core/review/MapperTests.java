@@ -1,26 +1,20 @@
 package se.magnus.microservices.core.review;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.mapstruct.factory.Mappers;
-import reactor.core.Disposable;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import se.magnus.api.core.review.Review;
 import se.magnus.microservices.core.review.persistence.ReviewEntity;
 import se.magnus.microservices.core.review.services.ReviewMapper;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
 public class MapperTests {
 
     private ReviewMapper mapper = Mappers.getMapper(ReviewMapper.class);
+
 
     @Test
     public void mapperTests() {
@@ -77,15 +71,5 @@ public class MapperTests {
         assertEquals(api.getSubject(), api2.getSubject());
         assertEquals(api.getContent(), api2.getContent());
         assertNull(api2.getServiceAddress());
-    }
-    @Test
-    public void TestFlux () {
-        List<Integer> list = new ArrayList<>();
-        Flux.range(1, 5)
-                .filter(n -> n % 2 == 0)
-                .map(n -> n * 2)
-                .log()
-                .subscribe(n -> list.add(n));
-        Assertions.assertThat(list).containsExactly(4, 8);
     }
 }

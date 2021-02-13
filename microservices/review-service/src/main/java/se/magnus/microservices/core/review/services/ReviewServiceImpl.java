@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Scheduler;
@@ -22,13 +21,19 @@ import java.util.function.Supplier;
 
 import static java.util.logging.Level.FINE;
 
+import static java.util.logging.Level.FINE;
+
 @RestController
 public class ReviewServiceImpl implements ReviewService {
+
     private static final Logger LOG = LoggerFactory.getLogger(ReviewServiceImpl.class);
 
     private final ReviewRepository repository;
+
     private final ReviewMapper mapper;
+
     private final ServiceUtil serviceUtil;
+
     private final Scheduler scheduler;
 
     @Autowired
@@ -50,23 +55,29 @@ public class ReviewServiceImpl implements ReviewService {
 
             LOG.debug("createReview: created a review entity: {}/{}", body.getProductId(), body.getReviewId());
             return mapper.entityToApi(newEntity);
+
         } catch (DataIntegrityViolationException dive) {
             throw new InvalidInputException("Duplicate key, Product Id: " + body.getProductId() + ", Review Id:" + body.getReviewId());
         }
     }
 
     @Override
-    public Flux<Review> getReviews(@RequestHeader HttpHeaders httpHeaders, int productId) {
+    public Flux<Review> getReviews(HttpHeaders headers, int productId) {
+
         if (productId < 1) throw new InvalidInputException("Invalid productId: " + productId);
+
         LOG.info("Will get reviews for product with id={}", productId);
+
         return asyncFlux(() -> Flux.fromIterable(getByProductId(productId))).log(null, FINE);
     }
 
     protected List<Review> getByProductId(int productId) {
+
         List<ReviewEntity> entityList = repository.findByProductId(productId);
         List<Review> list = mapper.entityListToApiList(entityList);
         list.forEach(e -> e.setServiceAddress(serviceUtil.getServiceAddress()));
-        LOG.debug("getReviews: response size: {}", list.size());
+
+        LOG.debug("Response size: {}", list.size());
 
         return list;
     }
