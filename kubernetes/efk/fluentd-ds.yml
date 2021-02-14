@@ -20,9 +20,9 @@ spec:
       - name: fluentd
         image: hands-on/fluentd:v1
         env:
-          - name: FLUENT_ELASTICSEARCH_HOST
+          - name:  FLUENT_ELASTICSEARCH_HOST
             value: "elasticsearch.logging"
-          - name: FLUENT_ELASTICSEARCH_PORT
+          - name:  FLUENT_ELASTICSEARCH_PORT
             value: "9200"
           - name: FLUENT_ELASTICSEARCH_SCHEME
             value: "http"

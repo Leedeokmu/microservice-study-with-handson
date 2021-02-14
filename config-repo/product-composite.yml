@@ -51,6 +51,8 @@ api:
 server.port: 7000
 server.error.include-message: always
 
+spring.application.name: product-composite
+
 spring.cloud.stream:
   defaultBinder: rabbit
   default.contentType: application/json
@@ -78,7 +80,7 @@ resilience4j.retry:
       maxRetryAttempts: 3
       waitDuration: 1000
       retryExceptions:
-        - org.springframework.web.reactive.function.client.WebClientResponseException$InternalServerError
+      - org.springframework.web.reactive.function.client.WebClientResponseException$InternalServerError
 
 management.health.circuitbreakers.enabled: true
 

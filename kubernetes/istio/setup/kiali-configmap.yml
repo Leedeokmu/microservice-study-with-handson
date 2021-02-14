@@ -19,6 +19,6 @@ data:
       tracing:
         url: http://10.98.120.147:16686/jaeger
       grafana:
-        url: http://grafana.istio-system.svc.cluster.local:3000
+        url: http://10.108.239.223:3000
       prometheus:
-        url: http://prometheus:9090
+        url: http://10.110.154.65:9090

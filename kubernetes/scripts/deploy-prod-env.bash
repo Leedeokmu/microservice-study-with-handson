@@ -64,6 +64,7 @@ kubectl create secret tls tls-certificate --key kubernetes/cert/tls.key --cert k
 eval $(minikube docker-env)
 docker-compose up -d mongodb mysql rabbitmq
 
+
 # Deploy v1 services
 docker tag hands-on/auth-server               hands-on/auth-server:v1
 docker tag hands-on/product-composite-service hands-on/product-composite-service:v1 

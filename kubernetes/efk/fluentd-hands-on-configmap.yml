@@ -12,7 +12,7 @@ data:
         key log
         pattern ^(.*)$
         tag istio.${tag}
-      </rule>lde
+      </rule>
     </match>
 
     <match kubernetes.**hands-on**>
